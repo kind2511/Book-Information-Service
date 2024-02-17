@@ -20,10 +20,9 @@ func main() {
 
 	// Handler Endpoints
 	http.HandleFunc(utilities.DEFAULT_PATH, handlers.DefaultHandler)
-
+	http.HandleFunc(utilities.STATUS_PATH, handlers.StatusHandler)
 
 	// Start http Server
 	log.Println("Starting server on port " + port + "...")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
-
