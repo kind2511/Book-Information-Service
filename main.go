@@ -19,7 +19,7 @@ func main() {
 	}
 
 	// Handler Endpoints
-	http.HandleFunc(utilities.DEFAULT_PATH, handlers.EmptyHandler)
+	http.HandleFunc(utilities.DEFAULT_PATH, handlers.DefaultHandler)
 
 
 	// Start http Server
