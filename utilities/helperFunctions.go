@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func makeGetRequest(w http.ResponseWriter, url string) (*http.Response, error) {
+func MakeGetRequest(w http.ResponseWriter, url string) (*http.Response, error) {
 	// Send GET request to an api
 	response, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
