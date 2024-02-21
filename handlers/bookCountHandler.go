@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"assignment-1/utilities"
+	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 
-func BookCountHanlderr(w http.ResponseWriter, r *http.Request) {
+func BookCountHanlder(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		handleBookcountGetRequest(w, r)
@@ -20,6 +23,33 @@ func BookCountHanlderr(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
+
+	parts := strings.Split(r.URL.String(), "/")
+
+	books, err := utilities.GetBookInformation(w, parts[4])
+	if err != nil {
+		return
+	}
+
+	totalBookCount, err := utilities.GetTotalBookCountfunc(w)
+	if err != nil {
+		return
+	}
+
+	BooksInfo := utilities.Bookinfo {
+		Language: parts[4],
+		Books: books.Count,
+		Fraction: float64(books.Count) / float64(totalBookCount.TotalCount),
+	}
 	
+	w.Header().Add("content-type", "apllication-json")
+
+	encoder := json.NewEncoder(w)
+	
+	err = encoder.Encode(BooksInfo)
+	if err != nil {
+		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 

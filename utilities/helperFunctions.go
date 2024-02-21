@@ -6,11 +6,11 @@ import (
 )
 
 // Gets information about languages, authors, and number of books
-func GetBookInformation(w http.ResponseWriter, languageCode string) ([]BookInfo, error)  {
+func GetBookInformation(w http.ResponseWriter, languageCode string) (BookInfoTemp, error)  {
 	// empty list of books
-	var emptyBookInfo []BookInfo
+	var emptyBookInfo BookInfoTemp
 
-	url := "http://129.241.150.113:8000/books/?language=" + languageCode
+	url := "http://129.241.150.113:8000/books/?languages=" + languageCode
 
 	r, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
@@ -32,18 +32,12 @@ func GetBookInformation(w http.ResponseWriter, languageCode string) ([]BookInfo,
 		return emptyBookInfo, err
 	}
 
-	var books []BookInfo
+	var books BookInfoTemp
 
 	// Decoding JSON
 	decoder := json.NewDecoder(res.Body)
 	if err := decoder.Decode(&books); err != nil {
 		http.Error(w, "Did not manage to decode: "+err.Error(), http.StatusInternalServerError)
-		return emptyBookInfo, err
-	}
-
-	// If no books found
-	if len(books) == 0 {
-		http.Error(w, "No books found", http.StatusNotFound)
 		return emptyBookInfo, err
 	}
 

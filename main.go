@@ -21,6 +21,7 @@ func main() {
 	// Handler Endpoints
 	http.HandleFunc(utilities.DEFAULT_PATH, handlers.DefaultHandler)
 	http.HandleFunc(utilities.STATUS_PATH, handlers.StatusHandler)
+	http.HandleFunc(utilities.BOOKCOUNT_PATH, handlers.BookCountHanlder)
 
 	// Start http Server
 	log.Println("Starting server on port " + port + "...")
