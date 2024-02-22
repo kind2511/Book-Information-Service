@@ -1,8 +1,8 @@
 package utilities
 
 type BookInfoTemp struct {
-    Count    int        `json:"count"`
-	Results []Authors   `json:"results"`
+    Count    int      `json:"count"`
+	Results []Authors `json:"results"`
 }
 
 type Authors struct {
@@ -12,14 +12,14 @@ type Authors struct {
 }
 
 type TotalBookCount struct {
-	TotalCount int `json:"count"`
+	TotalCount int  `json:"count"`
 }
 
 type Bookinfo struct {
 	Language string  `json:"language"`
-	Books int 		  `json:"books"`
-	Authors int 	  `json:"authors"`
-	Fraction float64  `json:"fraction"`
+	Books int        `json:"books"`
+	Authors int      `json:"authors"`
+	Fraction float64 `json:"fraction"`
 }
 
 //Status Endpoint:
