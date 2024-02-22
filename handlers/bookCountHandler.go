@@ -18,8 +18,6 @@ func BookCountHanlder(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-
 }
 
 func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
@@ -36,9 +34,18 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the unique authors
+	uniqueAuthors := make(map[string]bool)
+    for _, book := range books.Results {
+        for _, author := range book.Authors {
+            uniqueAuthors[author.Name] = true
+        }
+    }
+
 	BooksInfo := utilities.Bookinfo {
 		Language: parts[4],
 		Books: books.Count,
+		Authors: len(uniqueAuthors),
 		Fraction: float64(books.Count) / float64(totalBookCount.TotalCount),
 	}
 	
@@ -52,4 +59,3 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-

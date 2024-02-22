@@ -2,7 +2,13 @@ package utilities
 
 type BookInfoTemp struct {
     Count    int        `json:"count"`
-	Authors  []string 	  `json:"authors"`
+	Results []Authors   `json:"results"`
+}
+
+type Authors struct {
+    Authors      []struct {
+		Name       string `json:"name"`
+    } `json:"authors,omitempty"`
 }
 
 type TotalBookCount struct {
