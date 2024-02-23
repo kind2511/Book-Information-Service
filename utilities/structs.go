@@ -15,6 +15,13 @@ type TotalBookCount struct {
 	TotalCount int  `json:"count"`
 }
 
+// type Bookinfo struct {
+// 	Language string  `json:"language"`
+// 	Books int        `json:"books"`
+// 	Authors int      `json:"authors"`
+// 	Fraction float64 `json:"fraction"`
+// }
+
 type Bookinfo struct {
 	Language string  `json:"language"`
 	Books int        `json:"books"`

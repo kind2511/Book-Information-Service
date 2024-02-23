@@ -21,41 +21,55 @@ func BookCountHanlder(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
+    // Parse the country codes from the URL
+    parts := strings.Split(r.URL.Path, "/")
+    
+	// Get the countrycodes
+    countryCodes := strings.Split(parts[4], ",")
 
-	parts := strings.Split(r.URL.String(), "/")
+    // Initialize a slice to store information for each country
+    var countriesInfo []utilities.Bookinfo
 
-	books, err := utilities.GetBookInformation(w, parts[4])
-	if err != nil {
-		return
-	}
-
-	totalBookCount, err := utilities.GetTotalBookCountfunc(w)
-	if err != nil {
-		return
-	}
-
-	// Get the unique authors
-	uniqueAuthors := make(map[string]bool)
-    for _, book := range books.Results {
-        for _, author := range book.Authors {
-            uniqueAuthors[author.Name] = true
+    // Iterate over each country code
+    for _, countryCode := range countryCodes {
+        books, err := utilities.GetBookInformation(w, countryCode)
+        if err != nil {
+            return
         }
+
+        // Get total book count for all countries
+        totalBookCount, err := utilities.GetTotalBookCountfunc(w)
+        if err != nil {
+            return
+        }
+
+        // Calculate unique authors
+        uniqueAuthors := make(map[string]bool)
+        for _, book := range books.Results {
+            for _, author := range book.Authors {
+                uniqueAuthors[author.Name] = true
+            }
+        }
+
+        // Calculate fraction
+        fraction := float64(books.Count) / float64(totalBookCount.TotalCount)
+
+        // Prepare information for the current country
+        countryInfo := utilities.Bookinfo{
+            Language:  countryCode,
+            Books:     books.Count,
+            Authors:   len(uniqueAuthors),
+            Fraction:  fraction,
+        }
+
+        // Append information for the current country to the slice
+        countriesInfo = append(countriesInfo, countryInfo)
     }
 
-	BooksInfo := utilities.Bookinfo {
-		Language: parts[4],
-		Books: books.Count,
-		Authors: len(uniqueAuthors),
-		Fraction: float64(books.Count) / float64(totalBookCount.TotalCount),
-	}
-	
-	w.Header().Add("content-type", "apllication-json")
-
-	encoder := json.NewEncoder(w)
-	
-	err = encoder.Encode(BooksInfo)
-	if err != nil {
-		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
+    // Encode response
+    w.Header().Set("Content-Type", "application/json")
+    if err := json.NewEncoder(w).Encode(countriesInfo); err != nil {
+        http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
+        return
+    }
 }
