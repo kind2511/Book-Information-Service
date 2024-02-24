@@ -22,6 +22,23 @@ type Bookinfo struct {
 	Fraction float64 `json:"fraction"`
 }
 
+type CountryNameAndCode struct {
+	Country string `json:"Official_Name"`
+	Isocode string `json:"ISO3166_1_Alpha_2"`
+}
+
+type CountryPopulation struct {
+	Readership int `json:"population"`
+}
+
+type CountryInfo struct {
+	Country string `json:"Official_Name"`
+	Isocode string `json:"ISO3166_1_Alpha_2"`
+	Books int      `json:"books"`
+	Authors int    `json:"authors"`
+	Readership int `json:"population"`		
+}
+
 type Status struct {
 	Gutendexapi int  `json:"gutendexapi"`
 	Langugaeapi int  `json:"languageapi"`
