@@ -44,6 +44,55 @@ func GetBookInformation(w http.ResponseWriter, languageCode string) (BookInfoTem
 	return books, nil
 }
 
+func GetAllAuthors(w http.ResponseWriter, languageCode string) ([]Authors, error) {
+    uniqueAuthors := make(map[string]bool)
+    var allAuthors []Authors
+
+    nextPage := "http://129.241.150.113:8000/books/?languages=" + languageCode
+    for nextPage != "" {
+        r, err := http.NewRequest(http.MethodGet, nextPage, nil)
+        if err != nil {
+            http.Error(w, "Error in creating request", http.StatusInternalServerError)
+            return nil, err
+        }
+        r.Header.Add("content-type", "application/json")
+
+        client := &http.Client{}
+        defer client.CloseIdleConnections()
+
+        res, err := client.Do(r)
+        if err != nil {
+            http.Error(w, "Did not manage to issue request", http.StatusInternalServerError)
+            return nil, err
+        }
+
+        var pageResponse struct {
+            Next     string    `json:"next"`
+            Previous string    `json:"previous"`
+            Results  []Authors `json:"results"`
+        }
+
+        decoder := json.NewDecoder(res.Body)
+        if err := decoder.Decode(&pageResponse); err != nil {
+            http.Error(w, "Did not manage to decode: "+err.Error(), http.StatusInternalServerError)
+            return nil, err
+        }
+
+        for _, authors := range pageResponse.Results {
+            for _, author := range authors.Authors {
+                if !uniqueAuthors[author.Name] {
+                    uniqueAuthors[author.Name] = true
+                    allAuthors = append(allAuthors, authors)
+                }
+            }
+        }
+
+        nextPage = pageResponse.Next
+    }
+
+    return allAuthors, nil
+}
+
 // Gets the total number of books in the Gutendex API
 func GetTotalBookCountfunc(w http.ResponseWriter) (TotalBookCount, error)  {
 	

@@ -43,12 +43,9 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        // Calculate unique authors
-        uniqueAuthors := make(map[string]bool)
-        for _, book := range books.Results {
-            for _, author := range book.Authors {
-                uniqueAuthors[author.Name] = true
-            }
+        authors, err := utilities.GetAllAuthors(w, countryCode)
+        if err != nil {
+            return
         }
 
         // Calculate fraction
@@ -58,7 +55,7 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
         countryInfo := utilities.Bookinfo{
             Language:  countryCode,
             Books:     books.Count,
-            Authors:   len(uniqueAuthors),
+            Authors:   len(authors),
             Fraction:  fraction,
         }
 
@@ -68,6 +65,7 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
 
     // Encode response
     w.Header().Set("Content-Type", "application/json")
+    
     if err := json.NewEncoder(w).Encode(countriesInfo); err != nil {
         http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
         return
