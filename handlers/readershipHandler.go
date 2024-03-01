@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"strconv"
 )
 
 func ReadershipHandler(w http.ResponseWriter, r *http.Request) {
@@ -31,9 +32,28 @@ func handleReadershipGetRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse query parameter to get the limit
+	query := r.URL.Query()
+	limitStr := query.Get("limit")
+	var limit int
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
+			return
+		}
+	} else {
+		// If limit parameter is not provided, set limit to a large value to effectively have no limit
+		limit = len(infoList)
+	}
+
 	var countriesInfo []utilities.CountryInfo
 
-	for _, info := range infoList {
+	for i, info := range infoList {
+
+		if i >= limit {
+			break
+		}
 
 		books, err := utilities.GetBookInformation(w, info.Isocode)
         if err != nil {
