@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"assignment-1/utilities"
+	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 func ReadershipHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,6 +20,57 @@ func ReadershipHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleReadershipGetRequest(w http.ResponseWriter, r *http.Request) {
+	// Parse the country codes from the URL
+	parts := strings.Split(r.URL.Path, "/")
+
+	// Get the countrycode
+	countryCode := parts[4]
+
+	infoList, err := utilities.GetCountryNameAndCode(w, countryCode)
+	if err != nil {
+		return
+	}
+
+	var countriesInfo []utilities.CountryInfo
+
+	for _, info := range infoList {
+
+		books, err := utilities.GetBookInformation(w, info.Isocode)
+        if err != nil {
+            return
+        }
 	
+		authors, err := utilities.GetAllAuthors(w, info.Isocode)
+        if err != nil {
+            return
+        }
+
+		populations, err := utilities.GetReadership(w, info.Isocode)
+		if err != nil {
+			return
+		}
+
+		population := 0
+        if len(populations) > 0 {
+            population = populations[0].Readership
+        }
+
+		countryInfo := utilities.CountryInfo{
+			Country:    info.Country,
+			Isocode:    info.Isocode,
+			Books:      books.Count,
+			Authors:    len(authors),
+			Readership: population,
+		}
+		countriesInfo = append(countriesInfo, countryInfo)
+	}
+
+	// Encode response
+	w.Header().Set("Content-Type", "application/json")
+
+	if err := json.NewEncoder(w).Encode(countriesInfo); err != nil {
+		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 

@@ -132,3 +132,78 @@ func GetTotalBookCountfunc(w http.ResponseWriter) (TotalBookCount, error)  {
 	return totalBookCount, nil
 }
 
+func GetCountryNameAndCode(w http.ResponseWriter, languageCode string) ([]CountryNameAndCode, error) {
+	var emptyCountryInfo []CountryNameAndCode
+
+	url := "http://129.241.150.113:3000/language2countries/" + languageCode
+
+	r, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		http.Error(w, "Error in creating request", http.StatusInternalServerError)
+		return emptyCountryInfo, err
+	}
+
+	// Setting content type
+	r.Header.Add("content-type", "application/json")
+
+	// Instantiate the client
+	client := &http.Client{}
+	defer client.CloseIdleConnections()
+
+	// Issue request
+	res, err := client.Do(r)
+	if err != nil {
+		http.Error(w, "Did not manage to issue request", http.StatusInternalServerError)
+		return emptyCountryInfo, err
+	}
+
+	var countryInfo []CountryNameAndCode
+
+	// Decoding JSON
+	decoder := json.NewDecoder(res.Body)
+	if err := decoder.Decode(&countryInfo); err != nil {
+		http.Error(w, "Did not manage to decode: "+err.Error(), http.StatusInternalServerError)
+		return emptyCountryInfo, err
+	}
+
+	return countryInfo, nil
+}
+
+func GetReadership(w http.ResponseWriter, countryCode string) ([]CountryPopulation, error) {
+    // empty list of books
+    var emptyCountryPopulationInfo []CountryPopulation
+
+    url := "https://restcountries.com/v3.1/alpha/" + countryCode
+
+    r, err := http.NewRequest(http.MethodGet, url, nil)
+    if err != nil {
+        http.Error(w, "Error in creating request", http.StatusInternalServerError)
+        return emptyCountryPopulationInfo, err
+    }
+
+    // Setting content type
+    r.Header.Add("content-type", "application/json")
+
+    // Instantiate the client
+    client := &http.Client{}
+    defer client.CloseIdleConnections()
+
+    // Issue request
+    res, err := client.Do(r)
+    if err != nil {
+        http.Error(w, "Did not manage to issue request", http.StatusInternalServerError)
+        return emptyCountryPopulationInfo, err
+    }
+    defer res.Body.Close()
+
+    var populations []CountryPopulation
+
+    // Decoding JSON
+    decoder := json.NewDecoder(res.Body)
+    if err := decoder.Decode(&populations); err != nil {
+        http.Error(w, "Did not manage to decode: "+err.Error(), http.StatusInternalServerError)
+        return emptyCountryPopulationInfo, err
+    }
+
+    return populations, nil
+}
