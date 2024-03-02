@@ -35,7 +35,7 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Gets statuscode of Countries API
-	countriesApiStatusCode, err := http.Get("https://restcountries.com/v3.1/all")
+	countriesApiStatusCode, err := http.Get("https://restcountries.com/v3.1/name/norway")
 	if err != nil {
 		err = fmt.Errorf("error occurred while making HTTP request: %v", err)
 		fmt.Println(err)
@@ -56,9 +56,10 @@ func StatusHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Sets the content-type to be json
 	w.Header().Add("content-type", "apllication-json")
+	w.WriteHeader(http.StatusOK)
 
-	encoder := json.NewEncoder(w)
-	
+	// Encode response
+	encoder := json.NewEncoder(w)	
 	err = encoder.Encode(Status)
 	if err != nil {
 		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)

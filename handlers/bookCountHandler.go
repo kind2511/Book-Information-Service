@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-
 func BookCountHanlder(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -21,14 +20,14 @@ func BookCountHanlder(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
-    // Parse the country codes from the URL
+    // Split the url into separate parts
     parts := strings.Split(r.URL.Path, "/")
     
 	// Get the countrycodes
     countryCodes := strings.Split(parts[4], ",")
 
     // Initialize a slice to store information for each country
-    var countriesInfo []utilities.Bookinfo
+    var countriesBookInfo []utilities.Bookinfo
 
     // Iterate over each country code
     for _, countryCode := range countryCodes {
@@ -37,22 +36,23 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
             return
         }
 
-        // Get total book count for all countries
+        // Get total book count in Gutendex
         totalBookCount, err := utilities.GetTotalBookCountfunc(w)
         if err != nil {
             return
         }
 
+        // Get all unique authors
         authors, err := utilities.GetAllAuthors(w, countryCode)
         if err != nil {
             return
         }
 
-        // Calculate fraction
+        // Calculate fractions
         fraction := float64(books.Count) / float64(totalBookCount.TotalCount)
 
         // Prepare information for the current country
-        countryInfo := utilities.Bookinfo{
+        bookinfo := utilities.Bookinfo{
             Language:  countryCode,
             Books:     books.Count,
             Authors:   len(authors),
@@ -60,13 +60,15 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
         }
 
         // Append information for the current country to the slice
-        countriesInfo = append(countriesInfo, countryInfo)
+        countriesBookInfo = append(countriesBookInfo, bookinfo)
     }
 
-    // Encode response
+    // Set content-type to be json
     w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
     
-    if err := json.NewEncoder(w).Encode(countriesInfo); err != nil {
+    // Encode response
+    if err := json.NewEncoder(w).Encode(countriesBookInfo); err != nil {
         http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
         return
     }
