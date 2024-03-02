@@ -27,6 +27,7 @@ func handleReadershipGetRequest(w http.ResponseWriter, r *http.Request) {
 	// Get the countrycode
 	countryCode := parts[4]
 
+	// Gets name and countrycodes of all countries speaking the countryCodes langugage 
 	infoList, err := utilities.GetCountryNameAndCode(w, countryCode)
 	if err != nil {
 		return
@@ -36,6 +37,7 @@ func handleReadershipGetRequest(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	limitStr := query.Get("limit")
 	var limit int
+	// if limit is not empty
 	if limitStr != "" {
 		limit, err = strconv.Atoi(limitStr)
 		if err != nil {
@@ -43,54 +45,57 @@ func handleReadershipGetRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		// If limit parameter is not provided, set limit to a large value to effectively have no limit
+		// If limit parameter is not provided, the limit is same as num countries provided from infoList
 		limit = len(infoList)
 	}
 
+	// Slice of information of each country
 	var countriesInfo []utilities.CountryInfo
 
+	// Goes through each countrycode returned from 
 	for i, info := range infoList {
 
+		// stop if equal to limit
 		if i >= limit {
 			break
 		}
 
+		// Get bookcount
 		books, err := utilities.GetBookInformation(w, info.Isocode)
         if err != nil {
             return
         }
-	
+		
+		// Get unique authors
 		authors, err := utilities.GetAllAuthors(w, info.Isocode)
         if err != nil {
             return
         }
 
+		// Get a countries population
 		populations, err := utilities.GetReadership(w, info.Isocode)
 		if err != nil {
 			return
 		}
 
-		population := 0
-        if len(populations) > 0 {
-            population = populations[0].Readership
-        }
-
+		// Create and populate struct
 		countryInfo := utilities.CountryInfo{
 			Country:    info.Country,
 			Isocode:    info.Isocode,
 			Books:      books.Count,
 			Authors:    len(authors),
-			Readership: population,
+			Readership: populations[0].Readership,
 		}
 		countriesInfo = append(countriesInfo, countryInfo)
 	}
 
-	// Encode response
+	// set content-type to json
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
+	// Encode response
 	if err := json.NewEncoder(w).Encode(countriesInfo); err != nil {
 		http.Error(w, "Error during encoding: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
-
