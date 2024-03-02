@@ -33,18 +33,21 @@ func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
     for _, countryCode := range countryCodes {
         books, err := utilities.GetBookInformation(w, countryCode)
         if err != nil {
+            http.Error(w, "Not able to retrieve information about the number of books per langugae. Check spelling of entered countrycode", http.StatusNotFound)
             return
         }
 
         // Get total book count in Gutendex
-        totalBookCount, err := utilities.GetTotalBookCountfunc(w)
+        totalBookCount, err := utilities.GetTotalBookCount(w)
         if err != nil {
+            http.Error(w, "Not able to retrieve information about the total number of books.", http.StatusNotFound)
             return
         }
 
         // Get all unique authors
         authors, err := utilities.GetAllAuthors(w, countryCode)
         if err != nil {
+            http.Error(w, "Not able to retrieve information about the number of authors", http.StatusNotFound)
             return
         }
 

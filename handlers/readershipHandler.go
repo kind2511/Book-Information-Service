@@ -63,18 +63,22 @@ func handleReadershipGetRequest(w http.ResponseWriter, r *http.Request) {
 		// Get bookcount
 		books, err := utilities.GetBookInformation(w, info.Isocode)
         if err != nil {
+			http.Error(w, "Not able to retrieve information about the number of books per langugae. Check spelling of entered countrycode", http.StatusNotFound)
+
             return
         }
 		
 		// Get unique authors
 		authors, err := utilities.GetAllAuthors(w, info.Isocode)
         if err != nil {
+			http.Error(w, "Not able to retrieve information about the total number of books.", http.StatusNotFound)
             return
         }
 
 		// Get a countries population
 		populations, err := utilities.GetReadership(w, info.Isocode)
 		if err != nil {
+			http.Error(w, "Not able to retrieve information about the number of authors", http.StatusNotFound)
 			return
 		}
 
