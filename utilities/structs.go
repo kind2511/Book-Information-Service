@@ -51,4 +51,3 @@ type Status struct {
 	Version string   `json:"version"`
 	Uptime float64   `json:"uptime"`
 }
-
