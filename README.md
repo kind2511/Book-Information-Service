@@ -25,12 +25,10 @@ The first API focuses on the provision of Gutenberg library information, whereas
 
 Deployment
 
-- Render:
-
+Render:
 * The web service has been deployed on render: https://cloud-assignment-1-j2kj.onrender.com/
 
-- Localhost
-
+Localhost:
 * Clone the repository by use of either SSH or HTTPS.
 * Open the program in your preferred IDE and run the program using “go run main.go”
 * The default server runs on https://localhost8080
