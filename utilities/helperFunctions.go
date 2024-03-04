@@ -69,7 +69,7 @@ func GetTotalBookCount(w http.ResponseWriter) (TotalBookCount, error) {
     return totalBookCount, nil
 }
 
-// Gets all authors
+// Gets all unique authors
 func GetAllAuthors(w http.ResponseWriter, languageCode string) ([]Authors, error) {
     uniqueAuthors := make(map[string]bool)
 
