@@ -1,93 +1,166 @@
-# assignment-1
+## Assignment-1: Book Information Service
 
+I have in this assignment developed a REST web application in Go that provides the client with information about books available in a given language based on the Gutenberg library. The service further determines the number of potential readers presumed to be able to read books in that language.
 
+The REST web services being used for this purposes are:
 
-## Getting started
+Gutendex API
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- Endpoint: http://129.241.150.113:8000/books/
+- Documentation: http://129.241.150.113:8000/
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Language2Countries API
 
-## Add your files
+- Endpoint: http://129.241.150.113:3000/language2countries/
+- Documentation: http://129.241.150.113:3000/
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+REST Countries API
+
+- Endpoint: http://129.241.150.113:8080/v3.1
+- Documentation: http://129.241.150.113:8080/
+
+The first API focuses on the provision of Gutenberg library information, whereas the second one provides the mapping from language to country information. The last service provides detailed country information.
+
+## Deployment
+
+Deployment
+
+- Render:
+
+* The web service has been deployed on render: https://cloud-assignment-1-j2kj.onrender.com/
+
+- Localhost
+
+* Clone the repository by use of either SSH or HTTPS.
+* Open the program in your preferred IDE and run the program using “go run main.go”
+* The default server runs on https://localhost8080
+
+## Endpoints
+
+The web service has three resource root paths:
 
 ```
-cd existing_repo
-git remote add origin https://git.gvk.idi.ntnu.no/course/prog2005/prog2005-2024-workspace/chrisa2511/assignment-1.git
-git branch -M main
-git push -uf origin main
+/librarystats/v1/bookcount/
+/librarystats/v1/readership/
+/librarystats/v1/status/
 ```
 
-## Integrate with your tools
+If the web service is run on render the url will look like this:
 
-- [ ] [Set up project integrations](https://git.gvk.idi.ntnu.no/course/prog2005/prog2005-2024-workspace/chrisa2511/assignment-1/-/settings/integrations)
+```
+https://cloud-assignment-1-j2kj.onrender.com/librarystats/v1/bookcount/
+https://cloud-assignment-1-j2kj.onrender.com/librarystats/v1/readership/
+https://cloud-assignment-1-j2kj.onrender.com/librarystats/v1/status/
+```
 
-## Collaborate with your team
+If the web service is run on localhost the url will look like this:
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```
+http://localhost:8080/librarystats/v1/bookcount/
+http://localhost:8080/librarystats/v1/readership/
+http://localhost:8080/librarystats/v1/status/
+```
 
-## Test and Deploy
+## Return book count for a given language(s)
 
-Use the built-in continuous integration in GitLab.
+The initial endpoint focuses returns the count of books for any given language, identified via country 2-letter language ISO codes (ISO 639 Set 1), as well as the number of unique authors. This can be a single as well as multiple languages (comma-separated language codes).
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+- Request
 
-***
+```
+Method: GET
+Path: bookcount/?language={:two_letter_language_code+}/
+```
 
-# Editing this README
+two_letter_language_code is the corresponding 2-letter language ISO codes (ISO 639 Set 1)
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Example Request:
+- bookcount/?language=no,fi
 
-## Suggestions for a good README
+* Example Response:
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```
+[
+    {
+        "language": "no",
+        "books": 21,
+        "authors": 16,
+        "fraction": 0.00028779739063699157
+    },
+    {
+        "language": "fi",
+        "books": 2834,
+        "authors": 887,
+        "fraction": 0.03883894309834448
+    }
+]
+```
 
-## Name
-Choose a self-explaining name for your project.
+## Return the number of potential readers for a given language
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+The second endpoint returns the number of potential readers for books in a given language, i.e., the population per country in which that language is official (and hence assuming that the inhabitants can potentially read it). This is reported in addition to the number of books and authors associated with a given language.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+- Request
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+```
+Method: GET
+Path: readership/{:two_letter_language_code}{?limit={:number}}
+```
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+{:two_letter_language_code} refers to the ISO639 Set 1 identifier of the language for which you establish readership.
+{?limit={:number}} is an optional parameter that limits the number of country entries that are reported (in addition to the total number).
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Example Request:
+- readership/no/?limit=5
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+* Example Response:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```
+[
+    {
+        "country": "Iceland",
+        "isocode": "IS",
+        "books": 7,
+        "authors": 8,
+        "readership": 366425
+    },
+    {
+        "country": "Norway",
+        "isocode": "NO",
+        "books": 21,
+        "authors": 16,
+        "readership": 5379475
+    },
+    {
+        "country": "Svalbard and Jan Mayen Islands",
+        "isocode": "SJ",
+        "books": 0,
+        "authors": 0,
+        "readership": 2562
+    }
+]
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+# Getting a status overview of services
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+The diagnostics interface indicates the availability of individual services this service depends on. The reporting occurs based on status codes returned by the dependent services, and it further provides information about the uptime of the service. 
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+- Request
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```
+Method: GET
+Path: status/
+```
 
-## License
-For open source projects, say how it is licensed.
+Example Request:
+* status/
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+* Example Response:
+
+{
+    "gutendexapi": 200,
+    "languageapi": 204,
+    "countriesapi": 200,
+    "version": "v1",
+    "uptime": 1850.885586077
+}
