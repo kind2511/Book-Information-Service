@@ -4,7 +4,7 @@ import (
 	"assignment-1/utilities"
 	"encoding/json"
 	"net/http"
-	"strings"
+    "strings"
 )
 
 func BookCountHanlder(w http.ResponseWriter, r *http.Request) {
@@ -20,11 +20,17 @@ func BookCountHanlder(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleBookcountGetRequest(w http.ResponseWriter, r *http.Request) {
-    // Split the url into separate parts
-    parts := strings.Split(r.URL.Path, "/")
-    
-	// Get the countrycodes
-    countryCodes := strings.Split(parts[4], ",")
+    // Get the countrycodes from url
+    languageParams := r.URL.Query().Get("language")
+
+    // separate the countrycodes
+    countryCodes := strings.Split(languageParams, ",")
+
+    // Check if any language codes are provided
+    if len(countryCodes) == 0 || countryCodes[0] == "" {
+        http.Error(w, "Language parameter is required", http.StatusBadRequest)
+        return
+    }
 
     // Initialize a slice to store information for each country
     var countriesBookInfo []utilities.Bookinfo
